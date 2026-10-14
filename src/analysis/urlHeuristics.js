@@ -24,3 +24,24 @@ export function hasPunycodeHost(url) {
   }
   return null;
 }
+
+const URL_SHORTENER_HOSTS = [
+  "bit.ly",
+  "tinyurl.com",
+  "t.co",
+  "goo.gl",
+  "ow.ly",
+  "is.gd",
+  "buff.ly",
+];
+
+export function usesUrlShortener(url) {
+  if (URL_SHORTENER_HOSTS.includes(url.hostname)) {
+    return {
+      reason:
+        "Länken är förkortad, så du kan inte se vilken sida den egentligen leder till.",
+      weight: SIGNAL_WEIGHT.LOW,
+    };
+  }
+  return null;
+}
