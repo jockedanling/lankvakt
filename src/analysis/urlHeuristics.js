@@ -45,3 +45,26 @@ export function usesUrlShortener(url) {
   }
   return null;
 }
+
+//TLD står för Top-level-domains, t.ex. .com, .se, .top, .ly
+
+const SUSPICIOUS_TLDS = [
+  ".top",
+  ".xyz",
+  ".click",
+  ".zip",
+  ".loan",
+  ".work",
+  ".support",
+];
+
+export function hasSuspiciousTld(url) {
+  if (SUSPICIOUS_TLDS.some((tld) => url.hostname.endsWith(tld))) {
+    return {
+      reason:
+        "Länken innehåller ovanlig ändelse, vilket är vanligt bland bedragare.",
+      weight: SIGNAL_WEIGHT.MEDIUM,
+    };
+  }
+  return null;
+}
