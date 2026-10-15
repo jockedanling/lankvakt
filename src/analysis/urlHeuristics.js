@@ -73,7 +73,7 @@ export function hasIpAddressHost(url) {
   const parts = url.hostname.split(".");
   if (
     parts.length === 4 &&
-    parts.every((parts) => !Number.isNaN(Number(part)))
+    parts.every((part) => !Number.isNaN(Number(part)))
   ) {
     return {
       reason:
