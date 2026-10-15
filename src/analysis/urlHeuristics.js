@@ -83,3 +83,16 @@ export function hasIpAddressHost(url) {
   }
   return null;
 }
+
+const MAX_NORMAL_HOST_PARTS = 4;
+
+export function hasManySubdomains(url) {
+  if (url.hostname.split(".").length > MAX_NORMAL_HOST_PARTS) {
+    return {
+      reason:
+        "Adressen har ovanligt många delar. Bedragare gör så för att ett känt namn ska synas först, fast sidan egentligen är en annan.",
+      weight: SIGNAL_WEIGHT.LOW,
+    };
+  }
+  return null;
+}
