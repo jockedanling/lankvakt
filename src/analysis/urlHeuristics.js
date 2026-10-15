@@ -68,3 +68,18 @@ export function hasSuspiciousTld(url) {
   }
   return null;
 }
+
+export function hasIpAddressHost(url) {
+  const parts = url.hostname.split(".");
+  if (
+    parts.length === 4 &&
+    parts.every((parts) => !Number.isNaN(Number(part)))
+  ) {
+    return {
+      reason:
+        "Länken består enbart av siffror istället för namn, vilket är vanligt bland bedragare.",
+      weight: SIGNAL_WEIGHT.HIGH,
+    };
+  }
+  return null;
+}
