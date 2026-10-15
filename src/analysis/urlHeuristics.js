@@ -1,3 +1,8 @@
+//
+// Denna js-fil innehåller funktioner som gör egen analys och ger en siffra utifrån en skala om hur
+// misstänksam man borde vara gentemot denna länk
+//
+
 export const SIGNAL_WEIGHT = Object.freeze({
   LOW: 1,
   MEDIUM: 2,
@@ -91,6 +96,44 @@ export function hasManySubdomains(url) {
     return {
       reason:
         "Adressen har ovanligt många delar. Bedragare gör så för att ett känt namn ska synas först, fast sidan egentligen är en annan.",
+      weight: SIGNAL_WEIGHT.LOW,
+    };
+  }
+  return null;
+}
+
+// En lista av ord som bedragare använder i länkar.
+const SUSPICIOUS_WORDS = [
+  "login",
+  "logga-in",
+  "verify",
+  "verifiera",
+  "konto",
+  "account",
+  "secure",
+  "security",
+  "sakerhet",
+  "update",
+  "uppdatera",
+  "bankid",
+  "betalning",
+  "payment",
+  "betala",
+  "delivery",
+  "track",
+  "spara",
+  "gratis",
+  "free",
+  "vinst",
+  "vunnit",
+];
+
+export function hasSuspiciousWords(url) {
+  const hostAndPath = (url.hostname + url.pathname).toLowerCase();
+  if (SUSPICIOUS_WORDS.some((word) => hostAndPath.includes(word))) {
+    return {
+      reason:
+        "Denna länk innehåller ord som 'logga in' eller 'verifiera'. Bedragare använder sådana ord för att få dig att lämna ut dina uppgifter.",
       weight: SIGNAL_WEIGHT.LOW,
     };
   }
