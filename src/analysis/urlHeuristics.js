@@ -139,3 +139,38 @@ export function hasSuspiciousWords(url) {
   }
   return null;
 }
+
+// Varumärken som bedragare ofta utger sig för att vara, med deras riktiga domäner.
+// Om adressen nämner namnet men inte hör till någon av domänerna är det troligen en förfalskning.
+const KNOWN_BRANDS = [
+  { name: "postnord", domains: ["postnord.se", "postnord.com"] },
+  { name: "dhl", domains: ["dhl.com"] },
+  { name: "swedbank", domains: ["swedbank.se"] },
+  { name: "handelsbanken", domains: ["handelsbanken.se"] },
+  { name: "nordea", domains: ["nordea.se", "nordea.com"] },
+  { name: "microsoft", domains: ["microsoft.com", "microsoftonline.com"] },
+  { name: "skatteverket", domains: ["skatteverket.se"] },
+];
+
+function isOnDomain(hostname, domain) {
+  return hostname === domain || hostname.endsWith("." + domain);
+}
+function isOfficialBrandSite(hostname, brand) {
+  return brand.domains.some((domain) => isOnDomain(hostname, domain));
+}
+
+export function impersonatesKnownBrand(url) {
+  const hostname = url.hostname;
+  const isImpersonated = KNOWN_BRANDS.some(
+    (brand) =>
+      hostname.includes(brand.name) && !isOfficialBrandSite(hostname, brand),
+  );
+  if (isImpersonated) {
+    return {
+      reason:
+        "Adressen använder namnet på ett känt företag eller en myndighet, men leder inte till deras riktiga webbplats.",
+      weight: SIGNAL_WEIGHT.HIGH,
+    };
+  }
+  return null;
+}
