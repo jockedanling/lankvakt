@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 
-export default function Index() {
+export default function HistoryScreen() {
   return (
     <View style={styles.container}>
-      <Text>Edit src/app/index.jsx to edit this screen.</Text>
+      <Text>Historik</Text>
     </View>
   );
 }
