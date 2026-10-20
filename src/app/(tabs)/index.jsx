@@ -1,16 +1,39 @@
+import { assessLink } from "@/analysis/verdict";
+import { InvalidLinkError } from "@/domain/errors";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import * as Clipboard from "expo-clipboard";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function ScanScreen() {
   const [link, setLink] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handlePaste = async () => {
     const input = await Clipboard.getStringAsync();
     setLink(input);
+  };
+
+  const handleCheck = () => {
+    try {
+      assessLink(link);
+    } catch (error) {
+      if (error instanceof InvalidLinkError) {
+        setErrorMessage(
+          "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken.",
+        );
+        return;
+      }
+      throw error;
+    }
+    router.push({ pathname: "/result/[id]", params: { id: link } });
+  };
+  const handleChangeText = (text) => {
+    setLink(text);
+    setErrorMessage(null);
   };
 
   return (
@@ -18,15 +41,19 @@ export default function ScanScreen() {
       <TextInput
         style={styles.input}
         placeholderTextColor={colors.secondaryText}
-        onChangeText={setLink}
+        onChangeText={handleChangeText}
         value={link}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="url"
         placeholder="Klistra in länk här…"
       />
-      <Pressable onPress={handlePaste} style={styles.secondaryBtn}>
-        <Text style={styles.pasteBtnText}>Klistra in</Text>
+      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+      <Pressable onPress={handlePaste} style={styles.secondaryButton}>
+        <Text style={styles.pasteButtonText}>Klistra in</Text>
+      </Pressable>
+      <Pressable onPress={handleCheck} style={styles.checkButton}>
+        <Text style={styles.checkButtonText}>Kontrollera</Text>
       </Pressable>
     </View>
   );
@@ -49,13 +76,29 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  secondaryBtn: {
+  secondaryButton: {
     paddingVertical: spacing.sm,
     marginTop: spacing.sm,
     alignItems: "center",
   },
-  pasteBtnText: {
+  pasteButtonText: {
     ...typography.headline,
     color: colors.accent,
+  },
+  checkButton: {
+    backgroundColor: colors.accent,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.lg,
+  },
+  checkButtonText: {
+    ...typography.headline,
+    color: colors.surface,
+    textAlign: "center",
+  },
+  errorText: {
+    ...typography.subhead,
+    color: colors.text,
+    marginTop: spacing.sm,
   },
 });
