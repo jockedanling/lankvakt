@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
-export default function Id() {
+export default function ResultScreen() {
   return (
     <View style={styles.container}>
       <Text>Resultat</Text>
