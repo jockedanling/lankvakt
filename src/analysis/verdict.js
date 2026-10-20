@@ -1,13 +1,14 @@
 import {
-    hasIpAddressHost,
-    hasManySubdomains,
-    hasPunycodeHost,
-    hasSuspiciousTld,
-    hasSuspiciousWords,
-    impersonatesKnownBrand,
-    usesInsecureHttp,
-    usesUrlShortener,
+  hasIpAddressHost,
+  hasManySubdomains,
+  hasPunycodeHost,
+  hasSuspiciousTld,
+  hasSuspiciousWords,
+  impersonatesKnownBrand,
+  usesInsecureHttp,
+  usesUrlShortener,
 } from "@/analysis/urlHeuristics";
+import { InvalidLinkError } from "@/domain/errors";
 import { VERDICT } from "@/domain/verdicts";
 
 const HEURISTICS = [
@@ -25,9 +26,9 @@ const DANGEROUS_MIN_SCORE = 4;
 const SUSPICIOUS_MIN_SCORE = 2;
 const MAX_REASONS = 3;
 
-// Bedömmer en länk utifrån alla varningssignaler. Returnerar bedömningen och de allvarligaste förklaringarna.
+// Bedömer en länk utifrån alla varningssignaler. Returnerar bedömningen och de allvarligaste förklaringarna.
 export function assessLink(link) {
-  const url = new URL(link);
+  const url = parseLink(link);
   const results = HEURISTICS.map((check) => check(url));
   const findings = results.filter((result) => result !== null);
   const score = findings.reduce((total, finding) => total + finding.weight, 0);
@@ -47,4 +48,21 @@ function scoreToVerdict(score) {
     return VERDICT.SUSPICIOUS;
   }
   return VERDICT.SAFE;
+}
+
+function parseLink(link) {
+  let text = link.trim();
+  if (!text.includes("://")) {
+    text = "https://" + text;
+  }
+  let url;
+  try {
+    url = new URL(text);
+  } catch {
+    throw new InvalidLinkError();
+  }
+  if (!url.hostname.includes(".")) {
+    throw new InvalidLinkError();
+  }
+  return url;
 }
