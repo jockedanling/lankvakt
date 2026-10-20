@@ -64,5 +64,8 @@ function parseLink(link) {
   if (!url.hostname.includes(".")) {
     throw new InvalidLinkError();
   }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new InvalidLinkError();
+  }
   return url;
 }
