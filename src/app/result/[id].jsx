@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: spacing.md,
+    backgroundColor: colors.background,
   },
   adviceText: {
     ...typography.title2,
