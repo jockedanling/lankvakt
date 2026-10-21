@@ -9,9 +9,10 @@ import { StyleSheet, Text, View } from "react-native";
 // Formerna liknar vägskyltar som de flesta känner igen: okej, varning, stopp.
 const VERDICT_SYMBOL = Object.freeze({
   [VERDICT.SAFE]: "checkmark.circle.fill", // En bock som visar okej
-  [VERDICT.SUSPICIOUS]: "exclamationmark.triangle.fill", // Varnningstriangel
+  [VERDICT.SUSPICIOUS]: "exclamationmark.triangle.fill", // Varningstriangel
   [VERDICT.DANGEROUS]: "xmark.octagon.fill", // Som en stoppskylt
 });
+
 export default function RiskBadge({ verdict }) {
   const verdictColors = colors.verdict[verdict];
   return (
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
   },
   label: {
     ...typography.title2,
