@@ -1,18 +1,24 @@
 import { assessLink } from "@/analysis/verdict";
+import PrimaryButton from "@/components/PrimaryButton";
+import ReasonRow from "@/components/ReasonRow";
 import RiskBadge from "@/components/RiskBadge";
 import { VERDICT_ADVICE } from "@/domain/verdicts";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
-import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function ResultScreen() {
   const { id } = useLocalSearchParams();
   const { verdict, reasons } = assessLink(id);
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <RiskBadge verdict={verdict} />
       <Text style={styles.adviceText}>{VERDICT_ADVICE[verdict]}</Text>
       <View style={styles.linkCard}>
@@ -20,16 +26,26 @@ export default function ResultScreen() {
         <Text style={styles.linkText}>{id}</Text>
       </View>
 
-      <Text>{reasons.length}</Text>
-    </View>
+      {reasons.length > 0 && (
+        <>
+          <Text style={styles.sectionTitle}>Varför?</Text>
+          {reasons.map((reason, index) => (
+            <ReasonRow key={reason} number={index + 1} text={reason} />
+          ))}
+        </>
+      )}
+      <PrimaryButton title="Klar" onPress={() => router.back()} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    padding: spacing.md,
     backgroundColor: colors.background,
+  },
+  content: {
+    padding: spacing.md,
   },
   adviceText: {
     ...typography.title2,
@@ -51,5 +67,10 @@ const styles = StyleSheet.create({
     ...typography.body,
     fontFamily: "Menlo",
     color: colors.text,
+  },
+  sectionTitle: {
+    ...typography.headline,
+    color: colors.text,
+    marginTop: spacing.lg,
   },
 });

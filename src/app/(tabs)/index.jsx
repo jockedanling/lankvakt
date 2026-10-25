@@ -1,4 +1,5 @@
 import { assessLink } from "@/analysis/verdict";
+import PrimaryButton from "@/components/PrimaryButton";
 import { InvalidLinkError } from "@/domain/errors";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
@@ -52,9 +53,7 @@ export default function ScanScreen() {
       <Pressable onPress={handlePaste} style={styles.secondaryButton}>
         <Text style={styles.pasteButtonText}>Klistra in</Text>
       </Pressable>
-      <Pressable onPress={handleCheck} style={styles.checkButton}>
-        <Text style={styles.checkButtonText}>Kontrollera</Text>
-      </Pressable>
+      <PrimaryButton title="Kontrollera" onPress={handleCheck} />
     </View>
   );
 }
@@ -84,17 +83,6 @@ const styles = StyleSheet.create({
   pasteButtonText: {
     ...typography.headline,
     color: colors.accent,
-  },
-  checkButton: {
-    backgroundColor: colors.accent,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginTop: spacing.lg,
-  },
-  checkButtonText: {
-    ...typography.headline,
-    color: colors.surface,
-    textAlign: "center",
   },
   errorText: {
     ...typography.subhead,
