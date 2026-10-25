@@ -21,16 +21,14 @@ export default function ResultScreen() {
         <Text style={styles.linkText}>{id}</Text>
       </View>
 
-      <Text>
-        {reasons.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Varför?</Text>
-            {reasons.map((reason, index) => (
-              <ReasonRow key={reason} number={index + 1} text={reason} />
-            ))}
-          </>
-        )}
-      </Text>
+      {reasons.length > 0 && (
+        <>
+          <Text style={styles.sectionTitle}>Varför?</Text>
+          {reasons.map((reason, index) => (
+            <ReasonRow key={reason} number={index + 1} text={reason} />
+          ))}
+        </>
+      )}
     </View>
   );
 }
