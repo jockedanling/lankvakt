@@ -1,4 +1,5 @@
 import { assessLink } from "@/analysis/verdict";
+import ReasonRow from "@/components/ReasonRow";
 import RiskBadge from "@/components/RiskBadge";
 import { VERDICT_ADVICE } from "@/domain/verdicts";
 import { colors } from "@/theme/colors";
@@ -20,7 +21,16 @@ export default function ResultScreen() {
         <Text style={styles.linkText}>{id}</Text>
       </View>
 
-      <Text>{reasons.length}</Text>
+      <Text>
+        {reasons.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Varför?</Text>
+            {reasons.map((reason, index) => (
+              <ReasonRow key={reason} number={index + 1} text={reason} />
+            ))}
+          </>
+        )}
+      </Text>
     </View>
   );
 }
