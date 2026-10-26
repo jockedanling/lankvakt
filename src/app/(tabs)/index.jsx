@@ -1,6 +1,7 @@
 import { assessLink } from "@/analysis/verdict";
 import PrimaryButton from "@/components/PrimaryButton";
 import { InvalidLinkError } from "@/domain/errors";
+import { saveCheck } from "@/storage/historyRepository";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -18,9 +19,10 @@ export default function ScanScreen() {
     setLink(input);
   };
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
+    let assessment;
     try {
-      assessLink(link);
+      assessment = assessLink(link);
     } catch (error) {
       if (error instanceof InvalidLinkError) {
         setErrorMessage(
@@ -30,7 +32,12 @@ export default function ScanScreen() {
       }
       throw error;
     }
-    router.push({ pathname: "/result/[id]", params: { id: link } });
+    const id = await saveCheck(
+      link.trim(),
+      assessment.verdict,
+      assessment.reasons,
+    );
+    router.push({ pathname: "/result/[id]", params: { id } });
   };
   const handleChangeText = (text) => {
     setLink(text);

@@ -1,4 +1,4 @@
-import { db } from "./database";
+import { db } from "@/storage/database";
 
 // Sparar en ny kontroll med den egna analysen. VirusTotals svar fylls i
 // senare med updateVirusTotal, eftersom det kan dröja upp till 16 sekunder.
