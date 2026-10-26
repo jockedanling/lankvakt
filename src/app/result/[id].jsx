@@ -1,8 +1,8 @@
-import { assessLink } from "@/analysis/verdict";
 import PrimaryButton from "@/components/PrimaryButton";
 import ReasonRow from "@/components/ReasonRow";
 import RiskBadge from "@/components/RiskBadge";
 import { VERDICT_ADVICE } from "@/domain/verdicts";
+import { useUrlCheck } from "@/hooks/useUrlCheck";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -11,8 +11,9 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function ResultScreen() {
   const { id } = useLocalSearchParams();
-  const { verdict, reasons } = assessLink(id);
+  const { verdict, reasons, virusTotal } = useUrlCheck(id);
 
+  // console.log(virusTotal.status, virusTotal.report);
   return (
     <ScrollView
       style={styles.screen}
