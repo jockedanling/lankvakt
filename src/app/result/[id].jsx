@@ -1,6 +1,7 @@
 import PrimaryButton from "@/components/PrimaryButton";
 import ReasonRow from "@/components/ReasonRow";
 import RiskBadge from "@/components/RiskBadge";
+import VirusTotalRow from "@/components/VirusTotalRow";
 import { VERDICT_ADVICE } from "@/domain/verdicts";
 import { useUrlCheck } from "@/hooks/useUrlCheck";
 import { colors } from "@/theme/colors";
@@ -23,6 +24,7 @@ export default function ResultScreen() {
       <RiskBadge verdict={verdict} />
       <Text style={styles.adviceText}>{VERDICT_ADVICE[verdict]}</Text>
       <View style={styles.linkCard}>
+        <VirusTotalRow virusTotal={virusTotal} />
         <Text style={styles.linkLabel}>Länk</Text>
         <Text style={styles.linkText}>{id}</Text>
       </View>
