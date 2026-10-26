@@ -8,31 +8,43 @@ import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import { router, useLocalSearchParams } from "expo-router";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function ResultScreen() {
   const { id } = useLocalSearchParams();
-  const { verdict, reasons, virusTotal } = useUrlCheck(id);
+  const { check, virusTotal } = useUrlCheck(id);
 
-  // console.log(virusTotal.status, virusTotal.report);
+  if (check === null) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
       contentInsetAdjustmentBehavior="automatic"
     >
-      <RiskBadge verdict={verdict} />
-      <Text style={styles.adviceText}>{VERDICT_ADVICE[verdict]}</Text>
+      <RiskBadge verdict={check.verdict} />
+      <Text style={styles.adviceText}>{VERDICT_ADVICE[check.verdict]}</Text>
       <View style={styles.linkCard}>
-        <VirusTotalRow virusTotal={virusTotal} />
         <Text style={styles.linkLabel}>Länk</Text>
-        <Text style={styles.linkText}>{id}</Text>
+        <Text style={styles.linkText}>{check.link}</Text>
       </View>
-
-      {reasons.length > 0 && (
+      <VirusTotalRow virusTotal={virusTotal} />
+      {check.reasons.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Varför?</Text>
-          {reasons.map((reason, index) => (
+          {check.reasons.map((reason, index) => (
             <ReasonRow key={reason} number={index + 1} text={reason} />
           ))}
         </>
@@ -75,5 +87,11 @@ const styles = StyleSheet.create({
     ...typography.headline,
     color: colors.text,
     marginTop: spacing.lg,
+  },
+  loading: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.background,
   },
 });
