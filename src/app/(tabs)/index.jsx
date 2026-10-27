@@ -1,5 +1,6 @@
 import { assessLink } from "@/analysis/verdict";
 import PrimaryButton from "@/components/PrimaryButton";
+import QrScanner from "@/components/QrScanner";
 import { InvalidLinkError } from "@/domain/errors";
 import { saveCheck } from "@/storage/historyRepository";
 import { colors } from "@/theme/colors";
@@ -19,10 +20,10 @@ export default function ScanScreen() {
     setLink(input);
   };
 
-  const handleCheck = async () => {
+  async function checkLink(text) {
     let assessment;
     try {
-      assessment = assessLink(link);
+      assessment = assessLink(text);
     } catch (error) {
       if (error instanceof InvalidLinkError) {
         setErrorMessage(
@@ -33,12 +34,13 @@ export default function ScanScreen() {
       throw error;
     }
     const id = await saveCheck(
-      link.trim(),
+      text.trim(),
       assessment.verdict,
       assessment.reasons,
     );
     router.push({ pathname: "/result/[id]", params: { id } });
-  };
+  }
+
   const handleChangeText = (text) => {
     setLink(text);
     setErrorMessage(null);
@@ -46,6 +48,7 @@ export default function ScanScreen() {
 
   return (
     <View style={styles.container}>
+      <QrScanner onScanned={checkLink} />
       <TextInput
         style={styles.input}
         placeholderTextColor={colors.secondaryText}
@@ -60,7 +63,7 @@ export default function ScanScreen() {
       <Pressable onPress={handlePaste} style={styles.secondaryButton}>
         <Text style={styles.pasteButtonText}>Klistra in</Text>
       </Pressable>
-      <PrimaryButton title="Kontrollera" onPress={handleCheck} />
+      <PrimaryButton title="Kontrollera" onPress={() => checkLink(link)} />
     </View>
   );
 }
@@ -68,9 +71,10 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     backgroundColor: colors.background,
     padding: spacing.md,
+    paddingTop: spacing.lg,
   },
   input: {
     ...typography.body,
