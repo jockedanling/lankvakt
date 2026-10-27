@@ -1,17 +1,10 @@
-import { VERDICT, VERDICT_LABEL } from "@/domain/verdicts";
+import { VERDICT_LABEL } from "@/domain/verdicts";
 import { colors } from "@/theme/colors";
 import { radius } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
+import { VERDICT_SYMBOL } from "@/theme/verdictSymbols";
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, Text, View } from "react-native";
-
-// Olika former så att bedömningen går att förstå även för färgblinda
-// Formerna liknar vägskyltar som de flesta känner igen: okej, varning, stopp.
-const VERDICT_SYMBOL = Object.freeze({
-  [VERDICT.SAFE]: "checkmark.circle.fill", // En bock som visar okej
-  [VERDICT.SUSPICIOUS]: "exclamationmark.triangle.fill", // Varningstriangel
-  [VERDICT.DANGEROUS]: "xmark.octagon.fill", // Som en stoppskylt
-});
 
 export default function RiskBadge({ verdict }) {
   const verdictColors = colors.verdict[verdict];
