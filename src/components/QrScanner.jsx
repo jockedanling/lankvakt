@@ -1,14 +1,30 @@
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
-import { useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function QrScanner({ onScanned }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isScanning, setIsScanning] = useState(true);
+
+  // Stänger kameran när skärmen inte syns, till exempel när resultatet öppnas
+  // eller fliken byts, så att den inte drar batteri eller läser koden i bakgrunden.
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => setIsCameraOn(false);
+    }, []),
+  );
+
+  const handleBarcodeScanned = ({ data }) => {
+    setIsScanning(false);
+    onScanned(data);
+  };
 
   const handleStart = async () => {
     if (permission?.granted) {
@@ -30,7 +46,18 @@ export default function QrScanner({ onScanned }) {
   if (isCameraOn) {
     return (
       <View style={styles.frame}>
-        <Text>Här kommer kameran i steg 3</Text>
+        <CameraView
+          style={StyleSheet.absoluteFill}
+          facing="back"
+          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+          onBarcodeScanned={isScanning ? handleBarcodeScanned : undefined}
+        />
+        <Pressable
+          onPress={() => setIsCameraOn(false)}
+          style={styles.closeButton}
+        >
+          <Text style={styles.closeText}>Stäng kameran</Text>
+        </Pressable>
       </View>
     );
   }
@@ -57,7 +84,7 @@ export default function QrScanner({ onScanned }) {
 
 const styles = StyleSheet.create({
   frame: {
-    height: 240,
+    aspectRatio: 1,
     borderRadius: radius.md,
     borderWidth: 2,
     borderStyle: "dashed",
@@ -66,7 +93,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    marginBottom: spacing.lg,
   },
   title: {
     ...typography.headline,
@@ -79,5 +105,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: spacing.xs,
     paddingHorizontal: spacing.md,
+  },
+  closeButton: {
+    position: "absolute",
+    bottom: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+  },
+  closeText: {
+    ...typography.subhead,
+    fontWeight: "600",
+    color: colors.text,
   },
 });
