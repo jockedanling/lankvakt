@@ -1,6 +1,7 @@
 import { assessLink } from "@/analysis/verdict";
 import PrimaryButton from "@/components/PrimaryButton";
 import QrScanner from "@/components/QrScanner";
+import ScreenTitle from "@/components/ScreenTitle";
 import { InvalidLinkError } from "@/domain/errors";
 import { saveCheck } from "@/storage/historyRepository";
 import { colors } from "@/theme/colors";
@@ -8,6 +9,7 @@ import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -47,6 +49,7 @@ export default function ScanScreen() {
       assessment.verdict,
       assessment.reasons,
     );
+    setLink("");
     router.push({ pathname: "/result/[id]", params: { id } });
   }
 
@@ -61,6 +64,7 @@ export default function ScanScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        <ScreenTitle title="LänkVakt" />
         <QrScanner onScanned={checkLink} />
 
         <View style={styles.divider}>
@@ -78,10 +82,16 @@ export default function ScanScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="url"
+            clearButtonMode="while-editing"
             placeholder="Klistra in länk här…"
           />
           {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-          <Pressable onPress={handlePaste} style={styles.secondaryButton}>
+          <Pressable onPress={handlePaste} style={styles.pasteButton}>
+            <SymbolView
+              name="doc.on.clipboard"
+              size={18}
+              tintColor={colors.accent}
+            />
             <Text style={styles.pasteButtonText}>Klistra in</Text>
           </Pressable>
           <PrimaryButton title="Kontrollera" onPress={() => checkLink(link)} />
@@ -111,6 +121,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     marginTop: spacing.sm,
     alignItems: "center",
+  },
+  pasteButton: {
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   pasteButtonText: {
     ...typography.headline,
