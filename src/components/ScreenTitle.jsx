@@ -9,7 +9,7 @@ export default function ScreenTitle({ title }) {
 const styles = StyleSheet.create({
   title: {
     ...typography.largeTitle,
-    colors: colors.text,
+    color: colors.text,
     marginBottom: spacing.md,
   },
 });

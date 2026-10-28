@@ -3,12 +3,13 @@ import { getAllChecks } from "@/storage/historyRepository";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
-import { router, useFocusEffect } from "expo-router";
+import { router, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export default function HistoryScreen() {
   const [checks, setChecks] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   useFocusEffect(
     useCallback(() => {
@@ -16,17 +17,38 @@ export default function HistoryScreen() {
     }, []),
   );
 
+  // Filtrering och trim av ordet för att hitta träffar oavsett stora eller
+  // små bokstäver eller ett mellanslag för mycket.
+  const normalizedSearch = searchText.trim().toLowerCase();
+  const filteredChecks = checks.filter((check) =>
+    check.link.toLowerCase().includes(normalizedSearch),
+  );
+
+  // Varierande meddelande till användaren beroende på om historiken innehåller inga checks alls eller
+  // om den inte innehåller just det sökordet.
+  const emptyMessage =
+    checks.length === 0
+      ? "Du har inte kontrollerat några länkar än. Dina kontroller sparas här."
+      : `Ingen kontroll innehåller "${searchText.trim()}".`;
+
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerSearchBarOptions: {
+            placeholder: "Sök bland dina kontroller",
+            hideWhenScrolling: false,
+            onChangeText: (event) => setSearchText(event.nativeEvent.text),
+          },
+        }}
+      ></Stack.Screen>
       <FlatList
-        data={checks}
+        data={filteredChecks}
         keyExtractor={(check) => String(check.id)}
         contentContainerStyle={{ padding: spacing.md }}
+        contentInsetAdjustmentBehavior="automatic"
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            Du har inte kontrollerat några länkar än. Dina kontroller sparas
-            här.
-          </Text>
+          <Text style={styles.emptyText}>{emptyMessage}</Text>
         }
         renderItem={({ item }) => (
           <HistoryRow
