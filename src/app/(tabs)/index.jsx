@@ -1,5 +1,7 @@
 import { assessLink } from "@/analysis/verdict";
 import PrimaryButton from "@/components/PrimaryButton";
+import QrScanner from "@/components/QrScanner";
+import ScreenTitle from "@/components/ScreenTitle";
 import { InvalidLinkError } from "@/domain/errors";
 import { saveCheck } from "@/storage/historyRepository";
 import { colors } from "@/theme/colors";
@@ -7,8 +9,18 @@ import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ScanScreen() {
   const [link, setLink] = useState("");
@@ -19,10 +31,10 @@ export default function ScanScreen() {
     setLink(input);
   };
 
-  const handleCheck = async () => {
+  async function checkLink(text) {
     let assessment;
     try {
-      assessment = assessLink(link);
+      assessment = assessLink(text);
     } catch (error) {
       if (error instanceof InvalidLinkError) {
         setErrorMessage(
@@ -33,35 +45,59 @@ export default function ScanScreen() {
       throw error;
     }
     const id = await saveCheck(
-      link.trim(),
+      text.trim(),
       assessment.verdict,
       assessment.reasons,
     );
+    setLink("");
     router.push({ pathname: "/result/[id]", params: { id } });
-  };
+  }
+
   const handleChangeText = (text) => {
     setLink(text);
     setErrorMessage(null);
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholderTextColor={colors.secondaryText}
-        onChangeText={handleChangeText}
-        value={link}
-        autoCapitalize="none"
-        autoCorrect={false}
-        keyboardType="url"
-        placeholder="Klistra in länk här…"
-      />
-      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-      <Pressable onPress={handlePaste} style={styles.secondaryButton}>
-        <Text style={styles.pasteButtonText}>Klistra in</Text>
-      </Pressable>
-      <PrimaryButton title="Kontrollera" onPress={handleCheck} />
-    </View>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScreenTitle title="LänkVakt" />
+        <QrScanner onScanned={checkLink} />
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>eller</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <View>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor={colors.secondaryText}
+            onChangeText={handleChangeText}
+            value={link}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            clearButtonMode="while-editing"
+            placeholder="Klistra in länk här…"
+          />
+          {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+          <Pressable onPress={handlePaste} style={styles.pasteButton}>
+            <SymbolView
+              name="doc.on.clipboard"
+              size={18}
+              tintColor={colors.accent}
+            />
+            <Text style={styles.pasteButtonText}>Klistra in</Text>
+          </Pressable>
+          <PrimaryButton title="Kontrollera" onPress={() => checkLink(link)} />
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -69,7 +105,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: colors.background,
     padding: spacing.md,
   },
   input: {
@@ -87,6 +122,14 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     alignItems: "center",
   },
+  pasteButton: {
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
   pasteButtonText: {
     ...typography.headline,
     color: colors.accent,
@@ -95,5 +138,30 @@ const styles = StyleSheet.create({
     ...typography.subhead,
     color: colors.text,
     marginTop: spacing.sm,
+  },
+  section: {
+    flex: 1,
+  },
+  pasteSection: {
+    justifyContent: "center",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: spacing.lg,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.separator,
+  },
+  dividerText: {
+    ...typography.subhead,
+    color: colors.secondaryText,
+    marginHorizontal: spacing.sm,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
 });

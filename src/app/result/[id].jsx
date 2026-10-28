@@ -1,15 +1,21 @@
+import { parseLink } from "@/analysis/verdict";
 import PrimaryButton from "@/components/PrimaryButton";
 import ReasonRow from "@/components/ReasonRow";
 import RiskBadge from "@/components/RiskBadge";
 import VirusTotalRow from "@/components/VirusTotalRow";
-import { VERDICT_ADVICE } from "@/domain/verdicts";
+import { VERDICT, VERDICT_ADVICE } from "@/domain/verdicts";
 import { useUrlCheck } from "@/hooks/useUrlCheck";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useEffect } from "react";
 import {
+  ActionSheetIOS,
   ActivityIndicator,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -20,6 +26,12 @@ export default function ResultScreen() {
   const { id } = useLocalSearchParams();
   const { check, virusTotal } = useUrlCheck(id);
 
+  useEffect(() => {
+    if (check?.verdict === VERDICT.DANGEROUS) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+  }, [check?.verdict]);
+
   if (check === null) {
     return (
       <View style={styles.loading}>
@@ -27,6 +39,31 @@ export default function ResultScreen() {
       </View>
     );
   }
+
+  const openLink = () => {
+    WebBrowser.openBrowserAsync(parseLink(check.link).href);
+  };
+
+  const confirmOpen = () => {
+    if (check.verdict !== VERDICT.DANGEROUS) {
+      openLink();
+      return;
+    }
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        title: "Är du säker?",
+        message: "LänkVakt rekommenderar att du inte öppnar den här länken.",
+        options: ["Avbryt", "Öppna ändå"],
+        cancelButtonIndex: 0,
+        destructiveButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 1) {
+          openLink();
+        }
+      },
+    );
+  };
 
   return (
     <ScrollView
@@ -50,6 +87,13 @@ export default function ResultScreen() {
         </>
       )}
       <PrimaryButton title="Klar" onPress={() => router.back()} />
+      <Pressable
+        onPress={confirmOpen}
+        style={styles.openLinkButton}
+        accessibilityRole="button"
+      >
+        <Text style={styles.openLinkText}>Tryck här för att öppna länken</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -93,5 +137,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.background,
+  },
+  openLinkButton: {
+    padding: spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  openLinkText: {
+    ...typography.body,
+    color: colors.secondaryText,
+    textDecorationLine: "underline",
   },
 });
