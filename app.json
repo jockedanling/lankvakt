@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "lankvakt",
+    "name": "LänkVakt",
     "slug": "lankvakt",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -24,6 +24,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "LänkVakt använder kameran för att skanna QR-koder. Appen läser bara av länken och sparar inga bilder.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
