@@ -24,7 +24,7 @@ export default function VirusTotalRow({ virusTotal }) {
           <SymbolView
             name="wifi.exclamationmark"
             size={ICON_SIZE}
-            tintcolor={colors.secondaryText}
+            tintColor={colors.secondaryText}
           />
         }
       >
@@ -40,7 +40,7 @@ export default function VirusTotalRow({ virusTotal }) {
           <SymbolView
             name="clock"
             size={ICON_SIZE}
-            tintcolor={colors.secondaryText}
+            tintColor={colors.secondaryText}
           />
         }
       >
@@ -55,7 +55,7 @@ export default function VirusTotalRow({ virusTotal }) {
           <SymbolView
             name="checkmark.circle"
             size={ICON_SIZE}
-            tintcolor={colors.secondaryText}
+            tintColor={colors.secondaryText}
           />
         }
       >
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.subhead,
-    colors: colors.text,
+    color: colors.text,
     flex: 1,
   },
   bold: {

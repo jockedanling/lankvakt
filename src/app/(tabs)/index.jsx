@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -64,38 +65,46 @@ export default function ScanScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScreenTitle title="LänkVakt" />
-        <QrScanner onScanned={checkLink} />
+        <Pressable onPress={Keyboard.dismiss} accessible={false}>
+          <ScreenTitle title="LänkVakt" />
+          <QrScanner onScanned={checkLink} />
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>eller</Text>
-          <View style={styles.dividerLine} />
-        </View>
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>eller</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor={colors.secondaryText}
-            onChangeText={handleChangeText}
-            value={link}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            clearButtonMode="while-editing"
-            placeholder="Klistra in länk här…"
-          />
-          {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-          <Pressable onPress={handlePaste} style={styles.pasteButton}>
-            <SymbolView
-              name="doc.on.clipboard"
-              size={18}
-              tintColor={colors.accent}
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={colors.secondaryText}
+              onChangeText={handleChangeText}
+              value={link}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              clearButtonMode="always"
+              placeholder="Klistra in länk här…"
+              returnKeyType="Klar"
             />
-            <Text style={styles.pasteButtonText}>Klistra in</Text>
-          </Pressable>
-          <PrimaryButton title="Kontrollera" onPress={() => checkLink(link)} />
-        </View>
+            {errorMessage && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )}
+            <Pressable onPress={handlePaste} style={styles.pasteButton}>
+              <SymbolView
+                name="doc.on.clipboard"
+                size={18}
+                tintColor={colors.accent}
+              />
+              <Text style={styles.pasteButtonText}>Klistra in</Text>
+            </Pressable>
+            <PrimaryButton
+              title="Kontrollera"
+              onPress={() => checkLink(link)}
+            />
+          </View>
+        </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
