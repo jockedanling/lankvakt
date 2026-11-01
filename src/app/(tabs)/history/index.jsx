@@ -1,5 +1,5 @@
 import HistoryRow from "@/components/HistoryRow";
-import { getAllChecks } from "@/storage/historyRepository";
+import { deleteCheck, getAllChecks } from "@/storage/historyRepository";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -16,6 +16,13 @@ export default function HistoryScreen() {
       getAllChecks().then(setChecks);
     }, []),
   );
+
+  const handleDelete = async (id) => {
+    await deleteCheck(id);
+    setChecks((previousChecks) =>
+      previousChecks.filter((check) => check.id !== id),
+    );
+  };
 
   // Filtrering och trim av ordet för att hitta träffar oavsett stora eller
   // små bokstäver eller ett mellanslag för mycket.
@@ -53,6 +60,7 @@ export default function HistoryScreen() {
         renderItem={({ item }) => (
           <HistoryRow
             check={item}
+            onDelete={() => handleDelete(item.id)}
             onPress={() =>
               router.push({ pathname: "/result/[id]", params: { id: item.id } })
             }

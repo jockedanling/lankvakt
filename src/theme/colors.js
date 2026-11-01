@@ -7,6 +7,7 @@ export const colors = {
   secondaryText: "#5A6478",
   accent: "#1F4FD1",
   separator: "#D3DEEE",
+  destructive: "#D70015",
 
   // Komponenter kan leta upp färg t.ex. colors.verdict["dangerous"].text
   // Färgerna får bara användas för bedömningen
