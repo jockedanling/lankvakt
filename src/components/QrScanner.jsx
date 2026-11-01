@@ -10,7 +10,6 @@ import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 export default function QrScanner({ onScanned }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraOn, setIsCameraOn] = useState(false);
-  // const [isScanning, setIsScanning] = useState(true);
   const scanLockRef = useRef(false);
 
   // Stänger kameran när skärmen inte syns, till exempel när resultatet öppnas
@@ -47,7 +46,7 @@ export default function QrScanner({ onScanned }) {
     }
     const response = await requestPermission();
     if (response.granted) {
-      setIsCameraOn(true);
+      startCamera();
     }
   };
 

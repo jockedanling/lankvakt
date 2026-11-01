@@ -3,11 +3,17 @@ import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import { SymbolView } from "expo-symbols";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 const ICON_SIZE = 20;
 
-export default function VirusTotalRow({ virusTotal }) {
+export default function VirusTotalRow({ virusTotal, onRetry }) {
   const { status, report } = virusTotal;
 
   if (status === VT_STATUS.LOADING) {
@@ -19,18 +25,27 @@ export default function VirusTotalRow({ virusTotal }) {
   }
   if (status === VT_STATUS.ERROR) {
     return (
-      <InfoRow
-        icon={
-          <SymbolView
-            name="wifi.exclamationmark"
-            size={ICON_SIZE}
-            tintColor={colors.secondaryText}
-          />
-        }
-      >
-        Kunde inte fråga säkerhetstjänsterna just nu. Bedömningen bygger på
-        LänkVakts egen kontroll.
-      </InfoRow>
+      <View>
+        <InfoRow
+          icon={
+            <SymbolView
+              name="wifi.exclamationmark"
+              size={ICON_SIZE}
+              tintColor={colors.secondaryText}
+            />
+          }
+        >
+          Kunde inte fråga säkerhetstjänsterna just nu. Bedömningen bygger på
+          LänkVakts egen kontroll.
+        </InfoRow>
+        <Pressable
+          onPress={onRetry}
+          style={styles.retryButton}
+          accessibilityRole="button"
+        >
+          <Text style={styles.retryText}>Försök igen</Text>
+        </Pressable>
+      </View>
     );
   }
   if (report === null) {
@@ -114,5 +129,14 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: "700",
+  },
+  retryButton: {
+    alignSelf: "flex-start",
+    padding: spacing.sm,
+  },
+  retryText: {
+    ...typography.subhead,
+    color: colors.accent,
+    textDecorationLine: "underline",
   },
 });

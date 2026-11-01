@@ -65,7 +65,11 @@ export default function ScanScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Pressable onPress={Keyboard.dismiss} accessible={false}>
+        <Pressable
+          style={styles.screenContent}
+          onPress={Keyboard.dismiss}
+          accessible={false}
+        >
           <ScreenTitle title="LänkVakt" />
           <QrScanner onScanned={checkLink} />
 
@@ -86,7 +90,8 @@ export default function ScanScreen() {
               keyboardType="url"
               clearButtonMode="always"
               placeholder="Klistra in länk här…"
-              returnKeyType="Klar"
+              returnKeyType="done"
+              onSubmitEditing={() => checkLink(link)}
             />
             {errorMessage && (
               <Text style={styles.errorText}>{errorMessage}</Text>
@@ -111,10 +116,13 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screenContent: {
     flex: 1,
     justifyContent: "center",
     padding: spacing.md,
+  },
+  container: {
+    flex: 1,
   },
   input: {
     ...typography.body,

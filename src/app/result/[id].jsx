@@ -24,7 +24,7 @@ import {
 
 export default function ResultScreen() {
   const { id } = useLocalSearchParams();
-  const { check, virusTotal } = useUrlCheck(id);
+  const { check, virusTotal, retry } = useUrlCheck(id);
 
   useEffect(() => {
     if (check?.verdict === VERDICT.DANGEROUS) {
@@ -77,7 +77,7 @@ export default function ResultScreen() {
         <Text style={styles.linkLabel}>Länk</Text>
         <Text style={styles.linkText}>{check.link}</Text>
       </View>
-      <VirusTotalRow virusTotal={virusTotal} />
+      <VirusTotalRow virusTotal={virusTotal} onRetry={retry} />
       {check.reasons.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Varför?</Text>

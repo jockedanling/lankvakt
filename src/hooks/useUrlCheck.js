@@ -14,11 +14,22 @@ export const VT_STATUS = Object.freeze({
 // och svaret sparas i database så att historiken visar samma sak nästa gång.
 export function useUrlCheck(id) {
   const [check, setCheck] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [virusTotal, setVirusTotal] = useState({
     status: VT_STATUS.LOADING,
     report: null,
     error: null,
   });
+
+  // Ökar räknaren, som finns i effektens beroendelsita, så att VirusTotal frågas på nytt.
+  const retry = () => {
+    setVirusTotal({
+      status: VT_STATUS.LOADING,
+      report: null,
+      error: null,
+    });
+    setRetryCount((count) => count + 1);
+  };
 
   useEffect(() => {
     let isActive = true;
@@ -59,7 +70,7 @@ export function useUrlCheck(id) {
     return () => {
       isActive = false;
     };
-  }, [id]);
+  }, [id, retryCount]);
 
-  return { check, virusTotal };
+  return { check, virusTotal, retry };
 }
