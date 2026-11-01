@@ -5,7 +5,8 @@ import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import { router, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 export default function HistoryScreen() {
   const [checks, setChecks] = useState([]);
@@ -49,7 +50,8 @@ export default function HistoryScreen() {
           },
         }}
       ></Stack.Screen>
-      <FlatList
+      <Animated.FlatList
+        itemLayoutAnimation={LinearTransition}
         data={filteredChecks}
         keyExtractor={(check) => String(check.id)}
         contentContainerStyle={{ padding: spacing.md }}

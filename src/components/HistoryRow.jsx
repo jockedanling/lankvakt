@@ -6,6 +6,7 @@ import { VERDICT_SYMBOL } from "@/theme/verdictSymbols";
 import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, { FadeOut } from "react-native-reanimated";
 
 export default function HistoryRow({ check, onPress, onDelete }) {
   const time = new Date(check.checkedAt).toLocaleTimeString("sv-SE", {
@@ -28,36 +29,38 @@ export default function HistoryRow({ check, onPress, onDelete }) {
   }
 
   return (
-    <ReanimatedSwipeable
-      renderRightActions={renderRightActions}
-      containerStyle={styles.container}
-    >
-      <Pressable
-        onPress={onPress}
-        style={styles.row}
-        accessibilityActions={[{ name: "delete", label: "Radera" }]}
-        onAccessibilityAction={(event) => {
-          if (event.nativeEvent.actionName === "delete") {
-            onDelete();
-          }
-        }}
+    <Animated.View exiting={FadeOut.duration(300)}>
+      <ReanimatedSwipeable
+        renderRightActions={renderRightActions}
+        containerStyle={styles.container}
       >
-        <SymbolView
-          name={VERDICT_SYMBOL[check.verdict]}
-          size={24}
-          tintColor={verdictColors.text}
-        />
-        <View style={styles.texts}>
-          <Text style={styles.link} numberOfLines={1}>
-            {check.link}
-          </Text>
-          <Text style={[styles.verdict, { color: verdictColors.text }]}>
-            {VERDICT_LABEL[check.verdict]}
-          </Text>
-        </View>
-        <Text style={styles.time}>{time}</Text>
-      </Pressable>
-    </ReanimatedSwipeable>
+        <Pressable
+          onPress={onPress}
+          style={styles.row}
+          accessibilityActions={[{ name: "delete", label: "Radera" }]}
+          onAccessibilityAction={(event) => {
+            if (event.nativeEvent.actionName === "delete") {
+              onDelete();
+            }
+          }}
+        >
+          <SymbolView
+            name={VERDICT_SYMBOL[check.verdict]}
+            size={24}
+            tintColor={verdictColors.text}
+          />
+          <View style={styles.texts}>
+            <Text style={styles.link} numberOfLines={1}>
+              {check.link}
+            </Text>
+            <Text style={[styles.verdict, { color: verdictColors.text }]}>
+              {VERDICT_LABEL[check.verdict]}
+            </Text>
+          </View>
+          <Text style={styles.time}>{time}</Text>
+        </Pressable>
+      </ReanimatedSwipeable>
+    </Animated.View>
   );
 }
 
