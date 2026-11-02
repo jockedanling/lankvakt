@@ -44,6 +44,7 @@ export default function ResultScreen() {
     WebBrowser.openBrowserAsync(parseLink(check.link).href);
   };
 
+  // Frågar bara om den är farlig för att det ska vara ett extra lager skydd om man försöker öppna länken direkt.
   const confirmOpen = () => {
     if (check.verdict !== VERDICT.DANGEROUS) {
       openLink();

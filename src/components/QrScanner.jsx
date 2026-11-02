@@ -11,6 +11,8 @@ export default function QrScanner({ onScanned }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraOn, setIsCameraOn] = useState(false);
   const scanLockRef = useRef(false);
+  // Använder useRef som ett lås
+  // eftersom den ska ändra värdet omedelbart utan att trigga omrendrering av komponenten.
 
   // Stänger kameran när skärmen inte syns, till exempel när resultatet öppnas
   // eller fliken byts, så att den inte drar batteri eller läser koden i bakgrunden.

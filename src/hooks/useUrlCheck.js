@@ -11,7 +11,7 @@ export const VT_STATUS = Object.freeze({
 });
 
 // Hämtar den sparade kontrollen. Om VirusTotal inte har svarat tidigare frågas det nu,
-// och svaret sparas i database så att historiken visar samma sak nästa gång.
+// och svaret sparas i databasen så att historiken visar samma sak nästa gång.
 export function useUrlCheck(id) {
   const [check, setCheck] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -21,7 +21,7 @@ export function useUrlCheck(id) {
     error: null,
   });
 
-  // Ökar räknaren, som finns i effektens beroendelsita, så att VirusTotal frågas på nytt.
+  // Ökar räknaren, som finns i effektens beroendelista, så att VirusTotal frågas på nytt.
   const retry = () => {
     setVirusTotal({
       status: VT_STATUS.LOADING,
@@ -32,10 +32,10 @@ export function useUrlCheck(id) {
   };
 
   useEffect(() => {
-    let isActive = true;
+    let isActive = true; // Säkerställa att inte flera anrops gör i onödan.
 
     async function load() {
-      const saved = await getCheck(Number(id));
+      const saved = await getCheck(Number(id)); // Route-parameteter är alltid text.
       if (!isActive || saved === null) return;
       setCheck(saved);
 

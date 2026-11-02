@@ -2,7 +2,7 @@ import { openDatabaseSync } from "expo-sqlite";
 
 export const db = openDatabaseSync("lankvakt.db");
 
-// Skapar tabellen första gången appen startar. IF NOT EXITS gör att det är ofarligt att köra vid varje start.
+// Skapar tabellen första gången appen startar. IF NOT EXISTS gör att det är ofarligt att köra vid varje start.
 export function initDatabase() {
   db.execSync(`
         CREATE TABLE IF NOT EXISTS checks (

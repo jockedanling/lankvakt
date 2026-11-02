@@ -3,16 +3,14 @@ import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 import { VERDICT_SYMBOL } from "@/theme/verdictSymbols";
+import { formatCheckedAt } from "@/utils/formatDate";
 import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, { FadeOut } from "react-native-reanimated";
 
 export default function HistoryRow({ check, onPress, onDelete }) {
-  const time = new Date(check.checkedAt).toLocaleTimeString("sv-SE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const time = formatCheckedAt(check.checkedAt);
   const verdictColors = colors.verdict[check.verdict];
 
   function renderRightActions() {
@@ -37,7 +35,7 @@ export default function HistoryRow({ check, onPress, onDelete }) {
         <Pressable
           onPress={onPress}
           style={styles.row}
-          accessibilityActions={[{ name: "delete", label: "Radera" }]}
+          accessibilityActions={[{ name: "delete", label: "Radera" }]} // VoiceOver-användare kan inte svepa för att radera
           onAccessibilityAction={(event) => {
             if (event.nativeEvent.actionName === "delete") {
               onDelete();

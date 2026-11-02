@@ -68,7 +68,7 @@ export default function ScanScreen() {
         <Pressable
           style={styles.screenContent}
           onPress={Keyboard.dismiss}
-          accessible={false}
+          accessible={false} // Skärmläsaren ignorerar Pressable komponenten och istället läser upp dess barnelement.
         >
           <ScreenTitle title="LänkVakt" />
           <QrScanner onScanned={checkLink} />

@@ -13,11 +13,13 @@ export default function HistoryScreen() {
   const [searchText, setSearchText] = useState("");
 
   useFocusEffect(
+    // UseFocusEffect istället för useEffect för att flikarna ligger kvar i minnet, så listan måste läsas om varje gång fliken visas.
     useCallback(() => {
       getAllChecks().then(setChecks);
     }, []),
   );
 
+  // Raderar raden i databasen först sedan i UI:et.
   const handleDelete = async (id) => {
     await deleteCheck(id);
     setChecks((previousChecks) =>
