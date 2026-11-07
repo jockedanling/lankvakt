@@ -1,4 +1,10 @@
 import { VT_STATUS } from "@/hooks/useUrlCheck";
+import {
+  InvalidApiKeyError,
+  NetworkError,
+  QuotaExceededError,
+  TimeoutError,
+} from "@/services/apiErrors";
 import { colors } from "@/theme/colors";
 import { radius, spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -14,12 +20,12 @@ import {
 const ICON_SIZE = 20;
 
 export default function VirusTotalRow({ virusTotal, onRetry }) {
-  const { status, report } = virusTotal;
+  const { status, report, error } = virusTotal;
 
   if (status === VT_STATUS.LOADING) {
     return (
       <InfoRow icon={<ActivityIndicator color={colors.secondaryText} />}>
-        Frågar säkerhetstjänster om länken ...{" "}
+        Frågar säkerhetstjänster om länken ...
       </InfoRow>
     );
   }
@@ -35,8 +41,7 @@ export default function VirusTotalRow({ virusTotal, onRetry }) {
             />
           }
         >
-          Kunde inte fråga säkerhetstjänsterna just nu. Bedömningen bygger på
-          LänkVakts egen kontroll.
+          {getErrorText(error)} Bedömningen bygger på LänkVakts egen kontroll.
         </InfoRow>
         <Pressable
           onPress={onRetry}
@@ -74,7 +79,6 @@ export default function VirusTotalRow({ virusTotal, onRetry }) {
           />
         }
       >
-        {" "}
         Ingen av {report.total} säkerhetstjänster varnar för länken.
       </InfoRow>
     );
@@ -106,6 +110,23 @@ function InfoRow({ icon, children }) {
       <Text style={styles.text}>{children}</Text>
     </View>
   );
+}
+
+// Översätter felklassen till en text användaren förstår.
+function getErrorText(error) {
+  if (error instanceof NetworkError) {
+    return "Ingen internetanslutning.";
+  }
+  if (error instanceof TimeoutError) {
+    return "Säkerhetstjänsterna svarade inte i tid.";
+  }
+  if (error instanceof QuotaExceededError) {
+    return "För många kontroller på kort tid. Vänta en minut och försök igen.";
+  }
+  if (error instanceof InvalidApiKeyError) {
+    return "Appen saknar en giltig nyckel till säkerhetstjänsterna.";
+  }
+  return "Kunde inte fråga säkerhetstjänsterna just nu.";
 }
 
 const styles = StyleSheet.create({
