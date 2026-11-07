@@ -32,24 +32,29 @@ export default function ScanScreen() {
     setLink(input);
   };
 
-  async function checkLink(text) {
+  async function checkLink(text, isScanned = false) {
     let assessment;
     try {
       assessment = assessLink(text);
     } catch (error) {
       if (error instanceof InvalidLinkError) {
         setErrorMessage(
-          "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken.",
+          isScanned
+            ? "QR-koden innehåller ingen webbadress, så det finns inget att kontrollera. "
+            : "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken. ",
         );
         return;
       }
       throw error;
     }
-    const id = await saveCheck(
-      text.trim(),
-      assessment.verdict,
-      assessment.reasons,
-    );
+    let id;
+    try {
+      id = await saveCheck(text.trim(), assessment.verdict, assessment.reasons);
+    } catch {
+      setErrorMessage("Kunde inte spara kontrollen. Försök igen.");
+      return;
+    }
+
     setLink("");
     router.push({ pathname: "/result/[id]", params: { id } });
   }
@@ -71,7 +76,7 @@ export default function ScanScreen() {
           accessible={false} // Skärmläsaren ignorerar Pressable komponenten och istället läser upp dess barnelement.
         >
           <ScreenTitle title="LänkVakt" />
-          <QrScanner onScanned={checkLink} />
+          <QrScanner onScanned={(data) => checkLink(data, true)} />
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
