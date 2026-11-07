@@ -9,7 +9,7 @@ export default function HistoryLayout() {
           title: "Historik",
           headerLargeTitle: true,
         }}
-      ></Stack.Screen>
+      />
     </Stack>
   );
 }
