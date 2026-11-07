@@ -20,6 +20,7 @@ export function useUrlCheck(id) {
     report: null,
     error: null,
   });
+  const [notFound, setNotFound] = useState(false);
 
   // Ökar räknaren, som finns i effektens beroendelista, så att VirusTotal frågas på nytt.
   const retry = () => {
@@ -36,7 +37,11 @@ export function useUrlCheck(id) {
 
     async function load() {
       const saved = await getCheck(Number(id)); // Route-parameteter är alltid text.
-      if (!isActive || saved === null) return;
+      if (!isActive) return;
+      if (saved === null) {
+        setNotFound(true);
+        return;
+      }
       setCheck(saved);
 
       // Redan sparat svar: visa det direkt, utan nytt anrop och det ska spara kvot på API-kvoteringen
@@ -72,5 +77,5 @@ export function useUrlCheck(id) {
     };
   }, [id, retryCount]);
 
-  return { check, virusTotal, retry };
+  return { check, virusTotal, retry, notFound };
 }
