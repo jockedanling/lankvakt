@@ -25,7 +25,7 @@ export default function VirusTotalRow({ virusTotal, onRetry }) {
   if (status === VT_STATUS.LOADING) {
     return (
       <InfoRow icon={<ActivityIndicator color={colors.secondaryText} />}>
-        Frågar säkerhetstjänster om länken ...
+        Frågar säkerhetstjänster om länken...
       </InfoRow>
     );
   }

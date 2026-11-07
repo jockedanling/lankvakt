@@ -44,7 +44,7 @@ export function useUrlCheck(id) {
       }
       setCheck(saved);
 
-      // Redan sparat svar: visa det direkt, utan nytt anrop och det ska spara kvot på API-kvoteringen
+      // Redan sparat svar visas direkt utan nytt anrop, vilket sparar på API-kvoten.
       if (saved.virusTotalReport !== null) {
         setVirusTotal({
           status: VT_STATUS.DONE,
@@ -57,7 +57,7 @@ export function useUrlCheck(id) {
       try {
         const report = await getUrlReport(parseLink(saved.link));
         const { verdict } = assessLink(saved.link, report);
-        //Sparas även om skärmen har stängts, så att historiken blir komplett
+        // Sparas även om skärmen har stängts, så att historiken blir komplett.
         await updateVirusTotal(saved.id, verdict, report);
         if (!isActive) return;
         setCheck({ ...saved, verdict, virusTotalReport: report });

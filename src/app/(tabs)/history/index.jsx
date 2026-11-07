@@ -13,7 +13,7 @@ export default function HistoryScreen() {
   const [searchText, setSearchText] = useState("");
 
   useFocusEffect(
-    // UseFocusEffect istället för useEffect för att flikarna ligger kvar i minnet, så listan måste läsas om varje gång fliken visas.
+    // useFocusEffect istället för useEffect för att flikarna ligger kvar i minnet, så listan måste läsas om varje gång fliken visas.
     useCallback(() => {
       getAllChecks().then(setChecks);
     }, []),
@@ -34,7 +34,7 @@ export default function HistoryScreen() {
     check.link.toLowerCase().includes(normalizedSearch),
   );
 
-  // Varierande meddelande till användaren beroende på om historiken innehåller inga checks alls eller
+  // Varierande meddelande till användaren beroende på om historiken innehåller inga kontroller alls eller
   // om den inte innehåller just det sökordet.
   const emptyMessage =
     checks.length === 0

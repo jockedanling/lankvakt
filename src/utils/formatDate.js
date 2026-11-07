@@ -1,8 +1,8 @@
-// Visar tiden i historik skärmen.
-// Om sökningen var idag = visa klockslag.
-// Om sökningen var igår = visa igår
-// Om sökningen var inom en vecka = visa veckodag
-// om sökningen var längre tillbaka = visa datum
+// Visar tiden i historikskärmen.
+// Om kontrollen var idag = visa klockslag.
+// Om kontrollen var igår = visa igår
+// Om kontrollen var inom en vecka = visa veckodag
+// om kontrollen var längre tillbaka = visa datum
 export function formatCheckedAt(isoString) {
   const checkedAt = new Date(isoString);
 

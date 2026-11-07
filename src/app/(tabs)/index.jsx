@@ -40,8 +40,8 @@ export default function ScanScreen() {
       if (error instanceof InvalidLinkError) {
         setErrorMessage(
           isScanned
-            ? "QR-koden innehåller ingen webbadress, så det finns inget att kontrollera. "
-            : "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken. ",
+            ? "QR-koden innehåller ingen webbadress, så det finns inget att kontrollera."
+            : "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken.",
         );
         return;
       }
