@@ -15,6 +15,8 @@ import { useEffect } from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
+  Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -24,13 +26,24 @@ import {
 
 export default function ResultScreen() {
   const { id } = useLocalSearchParams();
-  const { check, virusTotal } = useUrlCheck(id);
+  const { check, virusTotal, retry, notFound } = useUrlCheck(id);
 
   useEffect(() => {
     if (check?.verdict === VERDICT.DANGEROUS) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     }
   }, [check?.verdict]);
+
+  if (notFound) {
+    return (
+      <View style={styles.notFound}>
+        <Text style={styles.notFoundText}>
+          Kontrollen finns inte längre. Den kan ha raderats.
+        </Text>
+        <PrimaryButton title="Tillbaka" onPress={() => router.back()} />
+      </View>
+    );
+  }
 
   if (check === null) {
     return (
@@ -44,24 +57,45 @@ export default function ResultScreen() {
     WebBrowser.openBrowserAsync(parseLink(check.link).href);
   };
 
+  // Frågar bara om den är farlig för att det ska vara ett extra lager skydd om man försöker öppna länken direkt.
   const confirmOpen = () => {
     if (check.verdict !== VERDICT.DANGEROUS) {
       openLink();
       return;
     }
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        title: "Är du säker?",
-        message: "LänkVakt rekommenderar att du inte öppnar den här länken.",
-        options: ["Avbryt", "Öppna ändå"],
-        cancelButtonIndex: 0,
-        destructiveButtonIndex: 1,
-      },
-      (buttonIndex) => {
-        if (buttonIndex === 1) {
-          openLink();
-        }
-      },
+    // Detta visas om det är en iOS-enhet.
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          title: "Är du säker?",
+          message: "LänkVakt rekommenderar att du inte öppnar den här länken.",
+          options: ["Avbryt", "Öppna ändå"],
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: 1,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            openLink();
+          }
+        },
+      );
+      return;
+    }
+    // Android och övriga plattformar saknar ActionSheetIOS, så alert används istället.
+    Alert.alert(
+      "Är du säker?",
+      "LänkVakt rekommenderar att du inte öppnar den här länken.",
+      [
+        {
+          text: "Avbryt",
+          style: "cancel",
+        },
+        {
+          text: "Öppna ändå",
+          style: "destructive",
+          onPress: openLink,
+        },
+      ],
     );
   };
 
@@ -77,7 +111,7 @@ export default function ResultScreen() {
         <Text style={styles.linkLabel}>Länk</Text>
         <Text style={styles.linkText}>{check.link}</Text>
       </View>
-      <VirusTotalRow virusTotal={virusTotal} />
+      <VirusTotalRow virusTotal={virusTotal} onRetry={retry} />
       {check.reasons.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Varför?</Text>
@@ -147,5 +181,16 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.secondaryText,
     textDecorationLine: "underline",
+  },
+  notFound: {
+    flex: 1,
+    justifyContent: "center",
+    padding: spacing.md,
+    backgroundColor: colors.background,
+  },
+  notFoundText: {
+    ...typography.body,
+    color: colors.text,
+    textAlign: "center",
   },
 });

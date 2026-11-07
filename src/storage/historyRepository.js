@@ -2,12 +2,13 @@ import { db } from "@/storage/database";
 
 // Sparar en ny kontroll med den egna analysen. VirusTotals svar fylls i
 // senare med updateVirusTotal, eftersom det kan dröja upp till 16 sekunder.
+// Värden skickas som ? i stället för att klistras in i SQL-texten, vilket skyddar mot SQL-injektion.
 export async function saveCheck(link, verdict, reasons) {
   const result = await db.runAsync(
     "INSERT INTO checks(link, verdict, reasons, checked_at) VALUES (?, ?, ?, ?)",
     link,
     verdict,
-    JSON.stringify(reasons), // Stringify gör om listan till text
+    JSON.stringify(reasons), // Stringify gör om listan till text för SQLite har ingen datatyp för listor.
     new Date().toISOString(),
   );
   return result.lastInsertRowId;

@@ -51,7 +51,7 @@ export function usesUrlShortener(url) {
   return null;
 }
 
-//TLD står för Top-level-domains, t.ex. .com, .se, .top, .ly
+// TLD står för Top-level-domains, t.ex. .com, .se, .top, .ly
 
 const SUSPICIOUS_TLDS = [
   ".top",

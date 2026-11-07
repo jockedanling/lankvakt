@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -31,24 +32,29 @@ export default function ScanScreen() {
     setLink(input);
   };
 
-  async function checkLink(text) {
+  async function checkLink(text, isScanned = false) {
     let assessment;
     try {
       assessment = assessLink(text);
     } catch (error) {
       if (error instanceof InvalidLinkError) {
         setErrorMessage(
-          "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken.",
+          isScanned
+            ? "QR-koden innehåller ingen webbadress, så det finns inget att kontrollera."
+            : "Det här ser inte ut som en webbadress. Kontrollera att du har kopierat hela länken.",
         );
         return;
       }
       throw error;
     }
-    const id = await saveCheck(
-      text.trim(),
-      assessment.verdict,
-      assessment.reasons,
-    );
+    let id;
+    try {
+      id = await saveCheck(text.trim(), assessment.verdict, assessment.reasons);
+    } catch {
+      setErrorMessage("Kunde inte spara kontrollen. Försök igen.");
+      return;
+    }
+
     setLink("");
     router.push({ pathname: "/result/[id]", params: { id } });
   }
@@ -64,48 +70,64 @@ export default function ScanScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScreenTitle title="LänkVakt" />
-        <QrScanner onScanned={checkLink} />
+        <Pressable
+          style={styles.screenContent}
+          onPress={Keyboard.dismiss}
+          accessible={false} // Skärmläsaren ignorerar Pressable komponenten och istället läser upp dess barnelement.
+        >
+          <ScreenTitle title="LänkVakt" />
+          <QrScanner onScanned={(data) => checkLink(data, true)} />
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>eller</Text>
-          <View style={styles.dividerLine} />
-        </View>
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>eller</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor={colors.secondaryText}
-            onChangeText={handleChangeText}
-            value={link}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            clearButtonMode="while-editing"
-            placeholder="Klistra in länk här…"
-          />
-          {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-          <Pressable onPress={handlePaste} style={styles.pasteButton}>
-            <SymbolView
-              name="doc.on.clipboard"
-              size={18}
-              tintColor={colors.accent}
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={colors.secondaryText}
+              onChangeText={handleChangeText}
+              value={link}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              clearButtonMode="always"
+              placeholder="Klistra in länk här…"
+              returnKeyType="done"
+              onSubmitEditing={() => checkLink(link)}
             />
-            <Text style={styles.pasteButtonText}>Klistra in</Text>
-          </Pressable>
-          <PrimaryButton title="Kontrollera" onPress={() => checkLink(link)} />
-        </View>
+            {errorMessage && (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            )}
+            <Pressable onPress={handlePaste} style={styles.pasteButton}>
+              <SymbolView
+                name="doc.on.clipboard"
+                size={18}
+                tintColor={colors.accent}
+              />
+              <Text style={styles.pasteButtonText}>Klistra in</Text>
+            </Pressable>
+            <PrimaryButton
+              title="Kontrollera"
+              onPress={() => checkLink(link)}
+            />
+          </View>
+        </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screenContent: {
     flex: 1,
     justifyContent: "center",
     padding: spacing.md,
+  },
+  container: {
+    flex: 1,
   },
   input: {
     ...typography.body,
@@ -116,11 +138,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     borderRadius: radius.md,
     padding: spacing.md,
-  },
-  secondaryButton: {
-    paddingVertical: spacing.sm,
-    marginTop: spacing.sm,
-    alignItems: "center",
   },
   pasteButton: {
     alignSelf: "center",
@@ -138,12 +155,6 @@ const styles = StyleSheet.create({
     ...typography.subhead,
     color: colors.text,
     marginTop: spacing.sm,
-  },
-  section: {
-    flex: 1,
-  },
-  pasteSection: {
-    justifyContent: "center",
   },
   divider: {
     flexDirection: "row",

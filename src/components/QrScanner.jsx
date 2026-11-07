@@ -4,13 +4,15 @@ import { typography } from "@/theme/typography";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useFocusEffect } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function QrScanner({ onScanned }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraOn, setIsCameraOn] = useState(false);
-  const [isScanning, setIsScanning] = useState(true);
+  // Använder useRef som ett lås
+  // eftersom den ska ändra värdet omedelbart utan att trigga omrendrering av komponenten.
+  const scanLockRef = useRef(false);
 
   // Stänger kameran när skärmen inte syns, till exempel när resultatet öppnas
   // eller fliken byts, så att den inte drar batteri eller läser koden i bakgrunden.
@@ -22,24 +24,31 @@ export default function QrScanner({ onScanned }) {
   );
 
   const handleBarcodeScanned = ({ data }) => {
-    setIsScanning(false);
+    if (scanLockRef.current) return;
+    scanLockRef.current = true;
+    setIsCameraOn(false);
     onScanned(data);
+  };
+
+  const startCamera = () => {
+    scanLockRef.current = false;
+    setIsCameraOn(true);
   };
 
   const handleStart = async () => {
     if (permission?.granted) {
-      setIsCameraOn(true);
+      startCamera();
       return;
     }
 
-    // IOS frågar bara en gång. Har hon sagt nej måste hon ändra det i inställningar
+    // IOS frågar bara en gång. Har användaren sagt nej måste användaren ändra det i inställningar.
     if (permission && !permission.canAskAgain) {
       Linking.openSettings();
       return;
     }
     const response = await requestPermission();
     if (response.granted) {
-      setIsCameraOn(true);
+      startCamera();
     }
   };
 
@@ -50,7 +59,7 @@ export default function QrScanner({ onScanned }) {
           style={StyleSheet.absoluteFill}
           facing="back"
           barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-          onBarcodeScanned={isScanning ? handleBarcodeScanned : undefined}
+          onBarcodeScanned={handleBarcodeScanned}
         />
         <Pressable
           onPress={() => setIsCameraOn(false)}
@@ -75,7 +84,7 @@ export default function QrScanner({ onScanned }) {
       <Text style={styles.title}>Skanna QR-kod</Text>
       <Text style={styles.hint}>
         {isBlocked
-          ? "Kameran är avstängd för LänkVakt. Tryck för att slå på den i inställningar"
+          ? "Kameran är avstängd för LänkVakt. Tryck för att slå på den i inställningar."
           : "Tryck för att använda kameran"}
       </Text>
     </Pressable>

@@ -1,56 +1,77 @@
-# Welcome to your Expo app 👋
+# LänkVakt
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+LänkVakt låter dig kontrollera en länk innan du öppnar den. Skanna en QR-kod
+eller klistra in en länk, så får du en bedömning – **Säker**, **Misstänkt** eller
+**Farlig** – och en förklaring på enkel svenska.
 
-## Get started
+Slutprojekt i SUM200 – Systemutveckling för mobila applikationer II, Högskolan Väst.
 
-1. Install dependencies
+## Krav
 
+- Node.js (LTS)
+- Expo Go för **SDK 58** på telefonen
+- Byggd och testad för iOS. Android fungerar men är mindre testat.
+
+## Kom igång
+
+1. Installera beroenden:
    ```bash
    npm install
    ```
+2. Skapa en `.env`-fil från mallen:
+   ```bash
+   cp .env.example .env
+   ```
+3. Skaffa en gratis API-nyckel på [virustotal.com](https://www.virustotal.com)
+   (skapa konto → API key) och klistra in den:
+   ```
+   EXPO_PUBLIC_VT_API_KEY=din-nyckel
+   ```
+   Alternativ få API-nyckel av ägaren.
+   ```
 
-2. Start the app
-
+   ```
+4. Starta appen och skanna QR-koden med kameran (iOS) eller Expo Go (Android):
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Utan API-nyckel
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Appens egen analys fungerar ändå. VirusTotal-raden visar då "Appen saknar en
+giltig nyckel till säkerhetstjänsterna" – det är inget fel i appen.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Testa appen
 
-## Get a fresh project
+| Skriv in                           | Förväntat resultat                                     |
+| ---------------------------------- | ------------------------------------------------------ |
+| `postnord-sverige.paket-spara.top` | Farlig (vibration och bekräftelse innan länken öppnas) |
+| `http://bit.ly/test`               | Misstänkt                                              |
+| `https://www.hv.se`                | Säker                                                  |
+| `hej`                              | Felmeddelande: ingen webbadress                        |
 
-When you're ready, run:
+## Mappstruktur
 
-```bash
-npm run reset-project
+```
+src/
+├── app/         Skärmar och navigering (Expo Router)
+├── analysis/    Den egna bedömningen: heuristiker och poängsättning
+├── components/  Återanvändbara UI-komponenter
+├── domain/      Gemensamma konstanter och feltyper
+├── hooks/       Kopplar ihop skärmar med data (useUrlCheck)
+├── services/    Anrop till VirusTotal
+├── storage/     SQLite-databasen för historiken
+├── theme/       Färger, avstånd och typsnitt
+└── utils/       Hjälpfunktioner, t.ex. datumformat
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Skärmarna i `app/` pratar med `hooks/`, som i sin tur använder `services/` och
+`storage/`. `analysis/` är ren JavaScript utan React och kan testas för sig.
 
-### Other setup steps
+## Kända begränsningar
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- VirusTotals gratiskvot är 4 anrop per minut.
+- Förkortare med `www.`-prefix och IPv6-adresser flaggas inte.
+- Reglerna för bedömningen (varumärken, toppdomäner, förkortare, misstänkta ord
+  och vikter) kan bara ändras i koden. Ett administrationsgränssnitt där de kan
+  uppdateras utan ny version av appen är en möjlig vidareutveckling.

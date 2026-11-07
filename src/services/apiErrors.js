@@ -1,5 +1,5 @@
 // En gemensam förälder för alla fel från VirusTotal, så att anroparen kan
-// fånga alla API-fel på en gång eller skilja dem åt med instanceOf.
+// fånga alla API-fel på en gång eller skilja dem åt med instanceof.
 export class ApiError extends Error {
   constructor(message) {
     super(message);

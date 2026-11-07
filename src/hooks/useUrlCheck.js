@@ -11,24 +11,40 @@ export const VT_STATUS = Object.freeze({
 });
 
 // Hämtar den sparade kontrollen. Om VirusTotal inte har svarat tidigare frågas det nu,
-// och svaret sparas i database så att historiken visar samma sak nästa gång.
+// och svaret sparas i databasen så att historiken visar samma sak nästa gång.
 export function useUrlCheck(id) {
   const [check, setCheck] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [virusTotal, setVirusTotal] = useState({
     status: VT_STATUS.LOADING,
     report: null,
     error: null,
   });
+  const [notFound, setNotFound] = useState(false);
+
+  // Ökar räknaren, som finns i effektens beroendelista, så att VirusTotal frågas på nytt.
+  const retry = () => {
+    setVirusTotal({
+      status: VT_STATUS.LOADING,
+      report: null,
+      error: null,
+    });
+    setRetryCount((count) => count + 1);
+  };
 
   useEffect(() => {
-    let isActive = true;
+    let isActive = true; // Hindrar att ett gammalt anrop uppdaterar skärmen efter att den har stängts.
 
     async function load() {
-      const saved = await getCheck(Number(id));
-      if (!isActive || saved === null) return;
+      const saved = await getCheck(Number(id)); // Route-parametern är alltid text.
+      if (!isActive) return;
+      if (saved === null) {
+        setNotFound(true);
+        return;
+      }
       setCheck(saved);
 
-      // Redan sparat svar: visa det direkt, utan nytt anrop och det ska spara kvot på API-kvoteringen
+      // Redan sparat svar visas direkt utan nytt anrop, vilket sparar på API-kvoten.
       if (saved.virusTotalReport !== null) {
         setVirusTotal({
           status: VT_STATUS.DONE,
@@ -41,7 +57,7 @@ export function useUrlCheck(id) {
       try {
         const report = await getUrlReport(parseLink(saved.link));
         const { verdict } = assessLink(saved.link, report);
-        //Sparas även om skärmen har stängts, så att historiken blir komplett
+        // Sparas även om skärmen har stängts, så att historiken blir komplett.
         await updateVirusTotal(saved.id, verdict, report);
         if (!isActive) return;
         setCheck({ ...saved, verdict, virusTotalReport: report });
@@ -59,7 +75,7 @@ export function useUrlCheck(id) {
     return () => {
       isActive = false;
     };
-  }, [id]);
+  }, [id, retryCount]);
 
-  return { check, virusTotal };
+  return { check, virusTotal, retry, notFound };
 }

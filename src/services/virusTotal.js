@@ -1,9 +1,9 @@
 import {
-    ApiError,
-    InvalidApiKeyError,
-    NetworkError,
-    QuotaExceededError,
-    TimeoutError,
+  ApiError,
+  InvalidApiKeyError,
+  NetworkError,
+  QuotaExceededError,
+  TimeoutError,
 } from "@/services/apiErrors";
 
 const VT_BASE_URL = "https://www.virustotal.com/api/v3";
@@ -41,7 +41,7 @@ async function request(path, options = {}) {
   return response.json();
 }
 
-// Väntar millisekunder. setTimeout har inget Promise och fungerar med en callback.
+// Väntar ett visst antal millisekunder. setTimeout har inget Promise och fungerar med en callback.
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -49,7 +49,7 @@ function wait(ms) {
 // Uträkning av flagged och total.
 function summarizeStats(stats) {
   return {
-    flagged: stats.malicious + stats.suspicious, // Tar ut två siffror ur stats, farliga och misstänksamma punkter.
+    flagged: stats.malicious + stats.suspicious, // Tar ut två siffror ur stats, farliga och misstänkta punkter.
     total: Object.values(stats).reduce((sum, count) => sum + count, 0), // gör om objektet till en lista och listan läggs ihop med reduce.
   };
 }
@@ -67,13 +67,12 @@ async function submitUrl(url) {
 
 // Gratiskvoten är 4 anrop per minut. GET + POST + 2 försök här = 4.
 // Blir analysen inte klar i tid returneras null och appen litar på den egna analysen.
-// Använda en for-loop som körs högst MAX_ANALYSIS_POLLS gånger.
 async function waitForAnalysis(analysisId) {
   for (let attempt = 0; attempt < MAX_ANALYSIS_POLLS; attempt++) {
     await wait(POLL_INTERVAL_MS); // vänta i 8 sekunder.
     const analysis = await request("/analyses/" + analysisId);
     if (analysis.data.attributes.status === "completed") {
-      // om status är "completed" returnerar statistiken.
+      // om status är "completed" returneras statistiken.
       return analysis.data.attributes.stats;
     }
   }
@@ -96,8 +95,8 @@ export async function getUrlReport(url) {
 // VirusTotal identifierar en länk med länken själv, kodad som base64url utan "=".
 // Länken kan inte skickas som den är, eftersom tecken som / och = skulle förstöra API-adressen.
 function toUrlId(url) {
-  return btoa(url.href) // Koda hela länken till base64. Varje tecken blir bokstäver och siffror. Går att avkoda tillbaka
+  return btoa(url.href) // Base64 består av bokstäver, siffror och tecknen + / =
     .replace(/\+/g, "-") // byter alla + mot - . Betyder något annat i webbadresser.
     .replace(/\//g, "_") // Byter alla / mot _ . / ser ut som en ny del av en adress.
-    .replace(/=+$/, ""); //Tar bort utfyllnaden = i slutet för VirusTotal vill inte ha det i sin version.
+    .replace(/=+$/, ""); // Tar bort utfyllnaden = i slutet för VirusTotal vill inte ha det i sin version.
 }
