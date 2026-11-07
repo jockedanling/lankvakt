@@ -33,10 +33,10 @@ export function useUrlCheck(id) {
   };
 
   useEffect(() => {
-    let isActive = true; // Säkerställa att inte flera anrops gör i onödan.
+    let isActive = true; // Hindrar att ett gammalt anrop uppdaterar skärmen efter att den har stängts.
 
     async function load() {
-      const saved = await getCheck(Number(id)); // Route-parameteter är alltid text.
+      const saved = await getCheck(Number(id)); // Route-parametern är alltid text.
       if (!isActive) return;
       if (saved === null) {
         setNotFound(true);

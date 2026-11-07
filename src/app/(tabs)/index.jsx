@@ -139,11 +139,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  secondaryButton: {
-    paddingVertical: spacing.sm,
-    marginTop: spacing.sm,
-    alignItems: "center",
-  },
   pasteButton: {
     alignSelf: "center",
     flexDirection: "row",
@@ -160,12 +155,6 @@ const styles = StyleSheet.create({
     ...typography.subhead,
     color: colors.text,
     marginTop: spacing.sm,
-  },
-  section: {
-    flex: 1,
-  },
-  pasteSection: {
-    justifyContent: "center",
   },
   divider: {
     flexDirection: "row",

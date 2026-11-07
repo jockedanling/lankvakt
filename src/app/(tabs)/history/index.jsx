@@ -51,12 +51,12 @@ export default function HistoryScreen() {
             onChangeText: (event) => setSearchText(event.nativeEvent.text),
           },
         }}
-      ></Stack.Screen>
+      />
       <Animated.FlatList
         itemLayoutAnimation={LinearTransition}
         data={filteredChecks}
         keyExtractor={(check) => String(check.id)}
-        contentContainerStyle={{ padding: spacing.md }}
+        contentContainerStyle={styles.listContent}
         contentInsetAdjustmentBehavior="automatic"
         ListEmptyComponent={
           <Text style={styles.emptyText}>{emptyMessage}</Text>
@@ -85,5 +85,8 @@ const styles = StyleSheet.create({
     color: colors.secondaryText,
     textAlign: "center",
     marginTop: spacing.xl,
+  },
+  listContent: {
+    padding: spacing.md,
   },
 });

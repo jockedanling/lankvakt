@@ -2,7 +2,7 @@ import { initDatabase } from "@/storage/database";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-initDatabase(); // Körs en gång när filen när appen startar.
+initDatabase(); // Körs en gång när appen startar.
 
 export default function RootLayout() {
   return (

@@ -81,7 +81,7 @@ export default function ResultScreen() {
       );
       return;
     }
-    // Android och övriga plattformar saknar AcionSheetiOS, så alert används istället.
+    // Android och övriga plattformar saknar AcionSheetIOS, så alert används istället.
     Alert.alert(
       "Är du säker?",
       "LänkVakt rekommenderar att du inte öppnar den här länken.",
